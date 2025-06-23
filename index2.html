@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoleStyle - Catálogo de Suelas</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style >
+     @tailwind base;
+@tailwind components;
+@tailwind utilities;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .sole-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sole-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .sole-preview {
+            width: 100%;
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sole-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        .sole-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .sole-price {
+            color: #667eea;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .product-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .image-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 350px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .main-image img.fade-out {
+            opacity: 0;
+        }
+
+        .main-image img.fade-in {
+            opacity: 1;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 80px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .thumbnail:hover,
+        .thumbnail.active {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.2s ease;
+        }
+
+        .product-info h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .product-price {
+            font-size: 1.8rem;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .color-selector {
+            margin-bottom: 30px;
+        }
+
+        .color-selector h3 {
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.2rem;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .color-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .color-option:hover,
+        .color-option.active {
+            border-color: #667eea;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .color-name {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #4a5568;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .color-option:hover .color-name,
+        .color-option.active .color-name {
+            opacity: 1;
+        }
+
+        .product-description {
+            line-height: 1.6;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+
+        .add-to-cart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-to-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .product-detail {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+
+            .color-options {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <header>
+            <h1>Composhoes</h1>
+            <p class="subtitle">Catálogo  de Suelas</p>
+        </header>
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 p-3 md:p-4 xl:p-5 light:bg-lime-300">
+    <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-950 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-950 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-white dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+      <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>  <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>  <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>  <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>  
+     <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>  <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>  <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>  <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+  <div class="bg- border rounded-lg shadow-md light:bg-lime-300 light:border-lime-300 ">
+        <div class="p-2 flex justify-center">
+            <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                <img class="rounded-lg"
+                    src="https://tailwindflex.com/public/images/thumbnails/simple-search-bar/thumb_u.min.webp"
+                    alt="Simple Search Bar" loading="lazy">
+            </a>
+        </div>
+        <div class="px-4 pb-3">
+            <div>
+                <a href="https://tailwindflex.com/team-tailwindflex/simple-search-bar">
+                    <h5
+                        class="text-xl font-semibold tracking-tight hover:text-violet-800 dark:hover:text-violet-300 text-gray-900 dark:text-white ">
+                        Simple Search Bar
+                    </h5>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 text-sm break-all">Minimalist design</p>
+            </div>
+            <div class="mt-2 flex justify-between">
+                <div class="flex gap-3 py-2">
+                    <a href="/u/team-tailwindflex">
+                        <img src="https://tailwindflex.com/public/images/profile/1.png"
+                            class="object-cover w-12 h-12 rounded-full" alt="team-tailwindflex" loading="lazy">
+                    </a>
+                    <p class="text-gray-600 dark:text-gray-300 hover:text-violet-800 ">
+                        <a href="/u/team-tailwindflex" class="text-sm">
+                            <small>Author:</small> <br>
+                            TailwindFlex
+                        </a>
+                    </p>
+                </div>
+                <div class="flex items-center mt-2.5">
+                    <span class="text-sm dark:text-gray-400">Ratings</span>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">
+                        5.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+<br><br>
+        <div class="catalog-grid" id="catalogGrid">
+            <!-- Los productos se generarán dinámicamente -->
+        </div>
+    </div>
+
+    <!-- Modal de detalles -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div class="product-detail">
+                <div class="image-gallery">
+                    <div class="main-image" id="mainImage">
+                        <div class="loading">Cargando imagen...</div>
+                    </div>
+                    <div class="thumbnail-grid" id="thumbnailGrid">
+                        <!-- Miniaturas se generarán dinámicamente -->
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h2 id="productName"></h2>
+                    <div class="product-price" id="productPrice"></div>
+                    <div class="color-selector">
+                        <h3>Colores disponibles:</h3>
+                        <div class="color-options" id="colorOptions">
+                            <!-- Opciones de color se generarán dinámicamente -->
+                        </div>
+                    </div>
+                    <div class="product-description" id="productDescription"></div>
+                 </div>
+            </div>
+            
+        </div>
+        <a href="#" class="group relative block bg-black">
+  <img
+    alt=""
+    src="https://images.unsplash.com/photo-1603871165848-0aa92c869fa1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=772&q=80"
+    class="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
+  />
+
+  <div class="relative p-4 sm:p-6 lg:p-8">
+    <p class="text-sm font-medium tracking-widest text-pink-500 uppercase">Developer</p>
+
+    <p class="text-xl font-bold text-white sm:text-2xl">Tony Wayne</p>
+
+    <div class="mt-32 sm:mt-48 lg:mt-64">
+      <div
+        class="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
+      >
+        <p class="text-sm text-white">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Omnis perferendis hic asperiores
+          quibusdam quidem voluptates doloremque reiciendis nostrum harum. Repudiandae?
+        </p>
+      </div>
+    </div>
+  </div>
+</a>
+    </div>
+
+    <script>
+        // Base de datos de productos con rutas de imágenes reales
+        const products = [
+            {
+                id: 1,
+                name: "Detroit",
+                price: "$45.99",
+                description: "Suela deportiva de alta resistencia con tecnología antideslizante. Perfecta para running urbano y actividades deportivas intensas.",
+                colors: [
+                    {
+                        name: "Negro",
+                        images: {
+                            frontal: "Detroit/8.webp",
+                            lateral: "",
+                            trasera: ""
+                        }
+                    },
+                    {
+                        name: "Blanco",
+                        images: {
+                            frontal: "Detroit/5.webp",
+                            lateral: "",
+                            trasera: ""
+                        }
+                    },
+                    {
+                        name: "Azul",
+                        images: {
+                            frontal: "Detroit/detroitpng.webp",
+                            lateral: "",
+                            trasera: ""
+                        }
+                    },
+                    {
+                        name: "Rojo",
+                        images: {
+                            frontal: "Detroit/6.png",
+                            lateral: "Detroit/8.png",
+                            trasera: "Detroit/8.png"
+                        }
+                    }
+                ],
+                views: ["frontal", "lateral", "trasera"]
+            }
+         
+
+        ];
+
+        let currentProduct = null;
+        let currentView = 0;
+        let currentColor = 0;
+
+        // Inicializar catálogo
+        function initCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '';
+
+            products.forEach(product => {
+                const card = createProductCard(product);
+                grid.appendChild(card);
+            });
+        }
+
+        // Crear tarjeta de producto
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'sole-card';
+            card.onclick = () => openProductModal(product);
+
+            // Usar la primera imagen del primer color como preview
+            const previewImage = product.colors[0].images.frontal;
+
+            card.innerHTML = `
+                <div class="sole-preview">
+                    <img src="${previewImage}" alt="${product.name}" onerror="this.style.display='none'">
+                </div>
+                <div class="sole-name">${product.name}</div>
+                <div class="sole-price">${product.price}</div>
+            `;
+
+            return card;
+        }
+
+        // Abrir modal de producto
+        function openProductModal(product) {
+            currentProduct = product;
+            currentView = 0;
+            currentColor = 0;
+
+            const modal = document.getElementById('productModal');
+            document.getElementById('productName').textContent = product.name;
+            document.getElementById('productPrice').textContent = product.price;
+            document.getElementById('productDescription').textContent = product.description;
+
+            updateMainImage();
+            createThumbnails();
+            createColorOptions();
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            const modal = document.getElementById('productModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Actualizar imagen principal con transición suave
+        function updateMainImage() {
+            const mainImageContainer = document.getElementById('mainImage');
+            const viewName = currentProduct.views[currentView];
+            const imageUrl = currentProduct.colors[currentColor].images[viewName];
+            
+            // Crear nueva imagen
+            const newImg = document.createElement('img');
+            newImg.src = imageUrl;
+            newImg.alt = `${currentProduct.name} - ${currentProduct.colors[currentColor].name} - ${viewName}`;
+            newImg.className = 'fade-out';
+            
+            // Precargar imagen
+            newImg.onload = () => {
+                // Encontrar imagen actual y hacerla fade out
+                const currentImg = mainImageContainer.querySelector('img.fade-in');
+                if (currentImg) {
+                    currentImg.classList.remove('fade-in');
+                    currentImg.classList.add('fade-out');
+                    
+                    // Remover imagen anterior después de la transición
+                    setTimeout(() => {
+                        if (currentImg.parentNode) {
+                            currentImg.parentNode.removeChild(currentImg);
+                        }
+                    }, 200);
+                }
+                
+                // Mostrar nueva imagen con fade in
+                setTimeout(() => {
+                    newImg.classList.remove('fade-out');
+                    newImg.classList.add('fade-in');
+                }, 10);
+            };
+            
+            // Limpiar loading message si existe
+            const loading = mainImageContainer.querySelector('.loading');
+            if (loading) {
+                loading.remove();
+            }
+            
+            mainImageContainer.appendChild(newImg);
+        }
+
+        // Crear miniaturas
+        function createThumbnails() {
+            const grid = document.getElementById('thumbnailGrid');
+            grid.innerHTML = '';
+
+            currentProduct.views.forEach((view, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = `thumbnail ${index === currentView ? 'active' : ''}`;
+                thumb.onclick = () => changeView(index);
+
+                const thumbImg = document.createElement('img');
+                thumbImg.src = currentProduct.colors[currentColor].images[view];
+                thumbImg.alt = `${view} view`;
+
+                thumb.appendChild(thumbImg);
+                grid.appendChild(thumb);
+            });
+        }
+
+        // Crear opciones de color
+        function createColorOptions() {
+            const container = document.getElementById('colorOptions');
+            container.innerHTML = '';
+
+            currentProduct.colors.forEach((color, index) => {
+                const option = document.createElement('div');
+                option.className = `color-option ${index === currentColor ? 'active' : ''}`;
+                option.onclick = () => changeColor(index);
+
+                // Usar imagen frontal como preview del color
+                const colorImg = document.createElement('img');
+                colorImg.src = color.images.frontal;
+                colorImg.alt = color.name;
+
+                const colorName = document.createElement('div');
+                colorName.className = 'color-name';
+                colorName.textContent = color.name;
+
+                option.appendChild(colorImg);
+                option.appendChild(colorName);
+                container.appendChild(option);
+            });
+        }
+
+        // Cambiar vista
+        function changeView(viewIndex) {
+            if (currentView === viewIndex) return;
+            
+            currentView = viewIndex;
+            
+            // Actualizar thumbnails activos
+            document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+                thumb.classList.toggle('active', index === viewIndex);
+            });
+
+            updateMainImage();
+        }
+
+        // Cambiar color
+        function changeColor(colorIndex) {
+            if (currentColor === colorIndex) return;
+            
+            currentColor = colorIndex;
+            
+            // Actualizar opciones de color activas
+            document.querySelectorAll('.color-option').forEach((option, index) => {
+                option.classList.toggle('active', index === colorIndex);
+            });
+
+            updateMainImage();
+            updateThumbnailImages();
+        }
+
+        // Actualizar imágenes de miniaturas
+        function updateThumbnailImages() {
+            const thumbnails = document.querySelectorAll('.thumbnail img');
+            
+            thumbnails.forEach((thumb, index) => {
+                const viewName = currentProduct.views[index];
+                const newSrc = currentProduct.colors[currentColor].images[viewName];
+                
+                // Transición suave para las miniaturas
+                thumb.style.opacity = '0.7';
+                setTimeout(() => {
+                    thumb.src = newSrc;
+                    thumb.style.opacity = '1';
+                }, 100);
+            });
+        }
+
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('productModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeModal();
+            }
+        });
+
+        // Inicializar al cargar la página
+        window.addEventListener('load', initCatalog);
+    </script>
+</body>
+</html>
